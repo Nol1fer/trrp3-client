@@ -1,20 +1,16 @@
+import configparser
 import grpc
 import time
-import threading
-from concurrent import futures
 import greet_pb2
 import greet_pb2_grpc
 import sqlite3
 
 class PythonGrpcClient:
-    def __init__(self, server_address='100.125.170.91:7031'):
-        # Create insecure channel (for HTTP) or secure channel
-        self.channel = grpc.insecure_channel(server_address)
-        self.stub = greet_pb2_grpc.GreeterStub(self.channel)
-    
     def secure_stream_example(self, cert_path=None):
         """Example with SSL/TLS (if server uses HTTPS)"""
         print("\n=== Secure Streaming (TLS) ===\n")
+        config = configparser.ConfigParser()
+        config.read("settings.ini")
         
         # For HTTPS/SSL, you need to create a secure channel
         if cert_path:
@@ -26,12 +22,12 @@ class PythonGrpcClient:
                 root_certificates=trusted_certs
             )
             channel = grpc.secure_channel(
-                '100.125.170.91:7031',
+                config["service"]["target"],
                 credentials
             )
         else:
             # For testing with self-signed certs (insecure)
-            channel = grpc.insecure_channel('100.125.170.91:5106')
+            channel = grpc.insecure_channel(config["service"]["insecure_target"])
         
         stub = greet_pb2_grpc.GreeterStub(channel)
 
@@ -42,7 +38,7 @@ class PythonGrpcClient:
             for message in messages:
                 print(f"Sending: {message}")
                 yield message
-                time.sleep(0.5)  # Optional delay
+                time.sleep(2)  # Optional delay
         
         response = stub.StreamFromClientSayHello(message_generator())
         
@@ -74,8 +70,8 @@ def create_protobuf_message(data_dict):
     return request
 
 def main():
-    client = PythonGrpcClient('100.125.170.91:7031')
-    client.secure_stream_example('cert.pem') # 'C:\\certs\\certificate.crt'
+    client = PythonGrpcClient()
+    client.secure_stream_example('cert.pem') # 'cert.pem'
 
 if __name__ == "__main__":
     main()
