@@ -42,7 +42,7 @@ class GreeterStub(object):
                 _registered_method=True)
         self.StreamFromClientSayHello = channel.stream_unary(
                 '/greet.Greeter/StreamFromClientSayHello',
-                request_serializer=greet__pb2.HelloRequest.SerializeToString,
+                request_serializer=greet__pb2.HelloRequest1.SerializeToString,
                 response_deserializer=greet__pb2.HelloReply.FromString,
                 _registered_method=True)
 
@@ -74,7 +74,7 @@ def add_GreeterServicer_to_server(servicer, server):
             ),
             'StreamFromClientSayHello': grpc.stream_unary_rpc_method_handler(
                     servicer.StreamFromClientSayHello,
-                    request_deserializer=greet__pb2.HelloRequest.FromString,
+                    request_deserializer=greet__pb2.HelloRequest1.FromString,
                     response_serializer=greet__pb2.HelloReply.SerializeToString,
             ),
     }
@@ -131,7 +131,7 @@ class Greeter(object):
             request_iterator,
             target,
             '/greet.Greeter/StreamFromClientSayHello',
-            greet__pb2.HelloRequest.SerializeToString,
+            greet__pb2.HelloRequest1.SerializeToString,
             greet__pb2.HelloReply.FromString,
             options,
             channel_credentials,
