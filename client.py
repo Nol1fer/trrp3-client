@@ -7,14 +7,11 @@ import sqlite3
 
 class PythonGrpcClient:
     def secure_stream_example(self, cert_path=None):
-        """Example with SSL/TLS (if server uses HTTPS)"""
-        print("\n=== Secure Streaming (TLS) ===\n")
         config = configparser.ConfigParser()
         config.read("settings.ini")
         
-        # For HTTPS/SSL, you need to create a secure channel
         if cert_path:
-            # Read certificate file
+            print("\n=== Secure Streaming (TLS) ===\n")
             with open(cert_path, 'rb') as f:
                 trusted_certs = f.read()
             
@@ -26,7 +23,7 @@ class PythonGrpcClient:
                 credentials
             )
         else:
-            # For testing with self-signed certs (insecure)
+            print("\n=== Insecure Streaming ===\n")
             channel = grpc.insecure_channel(config["service"]["insecure_target"])
         
         stub = greet_pb2_grpc.GreeterStub(channel)
@@ -38,7 +35,7 @@ class PythonGrpcClient:
             for message in messages:
                 print(f"Sending: {message}")
                 yield message
-                time.sleep(2)  # Optional delay
+                time.sleep(2)
         
         response = stub.StreamFromClientSayHello(message_generator())
         
@@ -58,7 +55,6 @@ def test():
 def create_protobuf_message(data_dict):
     request = greet_pb2.HelloRequest1()
     
-    # Map and set fields
     request.tv_show_name = data_dict.get('t_name', '')
     request.tv_show_year = data_dict.get('t_year', 0)
     request.episode_name = data_dict.get('e_name', '')
